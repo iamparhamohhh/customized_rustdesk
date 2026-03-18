@@ -104,8 +104,22 @@ endif()
 set(RUSTDESK_LIB_BUILD_TYPE $<IF:$<CONFIG:Debug>,debug,release>)
 message(STATUS "rustdesk lib build type: ${RUSTDESK_LIB_BUILD_TYPE}")
 set(RUSTDESK_LIB "../../target/${RUSTDESK_LIB_BUILD_TYPE}/librustdesk.dll")
-install(FILES "${RUSTDESK_LIB}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-COMPONENT Runtime RENAME librustdesk.dll)
+# Only install librustdesk.dll if it exists (requires Rust build: cargo build)
+# Falls back to stub DLL from runner/ directory for development without Rust
+install(CODE "
+  set(_rustdesk_lib \"${RUSTDESK_LIB}\")
+  set(_stub_lib \"${CMAKE_CURRENT_SOURCE_DIR}/runner/librustdesk.dll\")
+  set(_dest \"${INSTALL_BUNDLE_LIB_DIR}\")
+  if(EXISTS \"\${_rustdesk_lib}\")
+    message(STATUS \"Installing real librustdesk.dll from Rust build\")
+    file(INSTALL DESTINATION \"\${_dest}\" TYPE FILE RENAME \"librustdesk.dll\" FILES \"\${_rustdesk_lib}\")
+  elseif(EXISTS \"\${_stub_lib}\")
+    message(WARNING \"Using stub librustdesk.dll - Rust backend not available. Build with cargo for full functionality.\")
+    file(INSTALL DESTINATION \"\${_dest}\" TYPE FILE FILES \"\${_stub_lib}\")
+  else()
+    message(WARNING \"librustdesk.dll not found - app will fail at runtime. Build the Rust project: cargo build\")
+  endif()
+" COMPONENT Runtime)
 
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.

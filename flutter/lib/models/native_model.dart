@@ -117,22 +117,36 @@ class PlatformFFI {
   /// Init the FFI class, loads the native Rust core library.
   Future<void> init(String appType) async {
     _appType = appType;
-    final dylib = isAndroid
-        ? DynamicLibrary.open('librustdesk.so')
-        : isLinux
-            ? DynamicLibrary.open('librustdesk.so')
-            : isWindows
-                ? DynamicLibrary.open('librustdesk.dll')
-                :
-                // Use executable itself as the dynamic library for MacOS.
-                // Multiple dylib instances will cause some global instances to be invalid.
-                // eg. `lazy_static` objects in rust side, will be created more than once, which is not expected.
-                //
-                // isMacOS? DynamicLibrary.open("liblibrustdesk.dylib") :
-                DynamicLibrary.process();
+    DynamicLibrary dylib;
+    try {
+      dylib = isAndroid
+          ? DynamicLibrary.open('librustdesk.so')
+          : isLinux
+              ? DynamicLibrary.open('librustdesk.so')
+              : isWindows
+                  ? DynamicLibrary.open('librustdesk.dll')
+                  :
+                  // Use executable itself as the dynamic library for MacOS.
+                  // Multiple dylib instances will cause some global instances to be invalid.
+                  // eg. `lazy_static` objects in rust side, will be created more than once, which is not expected.
+                  //
+                  // isMacOS? DynamicLibrary.open("liblibrustdesk.dylib") :
+                  DynamicLibrary.process();
+    } catch (e) {
+      debugPrint('Failed to load native library: $e');
+      debugPrint('The app will run with limited functionality. Build the Rust project (cargo build) for full features.');
+      // Create a stub RustdeskImpl that doesn't need a real dylib
+      _ffiBind = RustdeskImpl(DynamicLibrary.process());
+      version = await getVersion();
+      return;
+    }
     debugPrint('initializing FFI $_appType');
     try {
-      _session_get_rgba = dylib.lookupFunction<F3Dart, F3>("session_get_rgba");
+      try {
+        _session_get_rgba = dylib.lookupFunction<F3Dart, F3>("session_get_rgba");
+      } catch (e) {
+        debugPrint('session_get_rgba not found in native library: $e');
+      }
       try {
         // SYSTEM user failed
         _dir = (await getApplicationDocumentsDirectory()).path;
@@ -242,22 +256,26 @@ class PlatformFFI {
   void _startListenEvent(RustdeskImpl rustdeskImpl) {
     final appType =
         _appType == kAppTypeDesktopRemote ? '$_appType,$kWindowId' : _appType;
-    var sink = rustdeskImpl.startGlobalEventStream(appType: appType);
-    sink.listen((message) {
-      () async {
-        try {
-          Map<String, dynamic> event = json.decode(message);
-          // _tryHandle here may be more flexible than _eventCallback
-          if (!await tryHandle(event)) {
-            if (_eventCallback != null) {
-              await _eventCallback!(event);
+    try {
+      var sink = rustdeskImpl.startGlobalEventStream(appType: appType);
+      sink.listen((message) {
+        () async {
+          try {
+            Map<String, dynamic> event = json.decode(message);
+            // _tryHandle here may be more flexible than _eventCallback
+            if (!await tryHandle(event)) {
+              if (_eventCallback != null) {
+                await _eventCallback!(event);
+              }
             }
+          } catch (e) {
+            debugPrint('json.decode fail(): $e');
           }
-        } catch (e) {
-          debugPrint('json.decode fail(): $e');
-        }
-      }();
-    });
+        }();
+      });
+    } catch (e) {
+      debugPrint('Failed to start global event stream: $e');
+    }
   }
 
   void setEventCallback(StreamEventHandler fun) async {
