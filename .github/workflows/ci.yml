@@ -151,9 +151,9 @@ jobs:
         vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
 
     - name: Install vcpkg dependencies
-      run: |
-        $VCPKG_ROOT/vcpkg install --x-install-root="$VCPKG_ROOT/installed"
       shell: bash
+      run: |
+        $VCPKG_ROOT/vcpkg install libvpx libyuv opus aom --triplet x64-windows-static --x-install-root="$VCPKG_ROOT/installed"
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@v1
