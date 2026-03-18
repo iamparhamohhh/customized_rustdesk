@@ -46,17 +46,15 @@ jobs:
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgDirectory: ${{ github.workspace }}/vcpkg
-        # Remove vcpkgGitCommitId if vcpkg is NOT a submodule in your repo.
-        # If you want to pin a version, add it back only if vcpkg IS a submodule.
-        # vcpkgGitCommitId: '120deac3062162151622ca4860575a33844ba10b'
+        # Pin vcpkg to the same baseline commit declared in vcpkg.json
+        # so run-vcpkg bootstraps the correct toolset version.
+        vcpkgGitCommitId: '120deac3062162151622ca4860575a33844ba10b'
 
     - name: Install vcpkg dependencies
-      # In manifest mode (vcpkg.json present), just run `vcpkg install` with no package args.
-      # The triplet must be set via environment variable or vcpkg.json default-triplet.
       shell: bash
       run: |
         export VCPKG_DEFAULT_TRIPLET=x64-windows-static
-        "$VCPKG_ROOT/vcpkg" install
+        "${{ github.workspace }}/vcpkg/vcpkg" install --triplet x64-windows-static
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@v1
