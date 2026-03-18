@@ -45,16 +45,28 @@ jobs:
     - name: Setup vcpkg with Github Actions binary cache
       uses: lukka/run-vcpkg@v11
       with:
-        vcpkgDirectory: ${{ github.workspace }}/vcpkg
-        # Pin vcpkg to the same baseline commit declared in vcpkg.json
-        # so run-vcpkg bootstraps the correct toolset version.
+        vcpkgDirectory: C:\vcpkg
         vcpkgGitCommitId: '120deac3062162151622ca4860575a33844ba10b'
+        doNotCache: false
 
     - name: Install vcpkg dependencies
       shell: bash
+      env:
+        VCPKG_DEFAULT_HOST_TRIPLET: x64-windows-static
       run: |
-        export VCPKG_DEFAULT_TRIPLET=x64-windows-static
-        "${{ github.workspace }}/vcpkg/vcpkg" install --triplet x64-windows-static
+        if ! $VCPKG_ROOT/vcpkg \
+          install \
+          --triplet x64-windows-static \
+          --x-install-root="$VCPKG_ROOT/installed"; then
+          find "${VCPKG_ROOT}/" -name "*.log" | while read -r _1; do
+            echo "$_1:"
+            echo "======"
+            cat "$_1"
+            echo "======"
+            echo ""
+          done
+          exit 1
+        fi
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@v1
