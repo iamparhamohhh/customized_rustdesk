@@ -58,10 +58,10 @@ jobs:
           install \
           --triplet x64-windows-static \
           --x-install-root="$VCPKG_ROOT/installed"; then
-          find "$VCPKG_ROOT/" -name "*.log" | while read -r _1; do
-            echo "$_1:"
+          find "$VCPKG_ROOT/" -name "*.log" | while read -r log_file; do
+            echo "$log_file:"
             echo "======"
-            cat "$_1"
+            cat "$log_file"
             echo "======"
             echo ""
           done
