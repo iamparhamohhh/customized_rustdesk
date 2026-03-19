@@ -91,11 +91,15 @@ jobs:
       run: |
         Invoke-WebRequest -Uri https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x64/sciter.dll -OutFile sciter.dll
 
+    - name: Inline Sciter UI resources
+      shell: bash
+      run: python3 res/inline-sciter.py
+
     - name: Build
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --locked --release --target=${{ matrix.job.target }}
+        args: --locked --release --features inline --target=${{ matrix.job.target }}
 
     - name: Stage artifact files
       shell: pwsh
