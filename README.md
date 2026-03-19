@@ -12,6 +12,18 @@
 > **Misuse Disclaimer:** <br>
 > The developers of RustDesk do not condone or support any unethical or illegal use of this software. Misuse, such as unauthorized access, control or invasion of privacy, is strictly against our guidelines. The authors are not responsible for any misuse of the application.
 
+## ⬇️ Download Windows Executable
+
+The Windows `.exe` installer is published automatically as a [GitHub Release](../../releases) whenever the build workflow runs.
+
+**To download the latest Windows build:**
+1. Go to the [**Releases page**](../../releases) of this repository.
+2. Download `rustdesk-<version>-x86_64.exe` (self-extracting installer) or `rustdesk-<version>-x86_64.msi` (MSI installer).
+
+**To trigger a new build manually:**
+1. Go to [**Actions → Build and Release Windows Executable**](../../actions/workflows/build-windows-release.yml).
+2. Click **Run workflow**, optionally set a tag name, and click **Run workflow**.
+3. Once the workflow completes, the `.exe` will appear on the [Releases page](../../releases).
 
 Chat with us: [Discord](https://discord.gg/nDceKgxnkV) | [Twitter](https://twitter.com/rustdesk) | [Reddit](https://www.reddit.com/r/rustdesk) | [YouTube](https://www.youtube.com/@rustdesk)
 
