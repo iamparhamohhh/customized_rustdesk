@@ -86,14 +86,26 @@ jobs:
 
     - uses: Swatinem/rust-cache@v2
 
+    - name: Download Sciter DLL
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x64/sciter.dll -OutFile sciter.dll
+
     - name: Build
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --locked --target=${{ matrix.job.target }}
+        args: --locked --release --target=${{ matrix.job.target }}
+
+    - name: Stage artifact files
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path .\artifact
+        Copy-Item target\${{ matrix.job.target }}\release\rustdesk.exe .\artifact\rustdesk.exe
+        Copy-Item sciter.dll .\artifact\sciter.dll
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: rustdesk-${{ matrix.job.target }}
-        path: target/${{ matrix.job.target }}/debug/rustdesk.exe
+        path: artifact\
