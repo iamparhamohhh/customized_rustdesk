@@ -54,7 +54,19 @@ jobs:
       shell: bash
       run: |
         export VCPKG_DEFAULT_TRIPLET=x64-windows-static
-        "${{ github.workspace }}/vcpkg/vcpkg" install --triplet x64-windows-static
+        if ! "$VCPKG_ROOT/vcpkg" \
+          install \
+          --triplet x64-windows-static \
+          --x-install-root="$VCPKG_ROOT/installed"; then
+          find "$VCPKG_ROOT/" -name "*.log" | while read -r _1; do
+            echo "$_1:"
+            echo "======"
+            cat "$_1"
+            echo "======"
+            echo ""
+          done
+          exit 1
+        fi
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@v1
