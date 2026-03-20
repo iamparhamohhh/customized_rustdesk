@@ -3686,10 +3686,7 @@ Widget loadPowered(BuildContext context) {
     child: Text(
       '\u00a9 ${DateTime.now().year} Rahbar Team. All rights reserved.',
       overflow: TextOverflow.clip,
-      style: Theme.of(context)
-          .textTheme
-          .bodySmall
-          ?.copyWith(fontSize: 10),
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
     ),
   ).marginOnly(top: 6);
 }
