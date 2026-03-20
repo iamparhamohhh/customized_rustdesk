@@ -153,6 +153,12 @@ jobs:
           targets: x86_64-pc-windows-msvc
           components: "rustfmt"
 
+      - name: Patch theme types for Flutter 3.24.5 compat
+        shell: bash
+        run: |
+          # Flutter 3.24.5 uses DialogTheme/TabBarTheme; 3.27+ renamed them to DialogThemeData/TabBarThemeData.
+          sed -i 's/DialogThemeData/DialogTheme/g; s/TabBarThemeData/TabBarTheme/g' flutter/lib/common.dart
+
       - name: Build RustDesk Windows Flutter
         run: |
           python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack
