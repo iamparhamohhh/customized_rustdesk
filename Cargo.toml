@@ -1,16 +1,21 @@
 [package]
-name = "rahbardesk"
+name = "rustdesk"
 version = "1.4.6"
 authors = ["rustdesk <info@rustdesk.com>"]
 edition = "2021"
 build= "build.rs"
 description = "RahbarDesk Remote Desktop"
 default-run = "rahbardesk"
+autobins = false
 rust-version = "1.75"
 
 [lib]
 name = "librustdesk"
 crate-type = ["cdylib", "staticlib", "rlib"]
+
+[[bin]]
+name = "rahbardesk"
+path = "src/main.rs"
 
 [[bin]]
 name = "naming"
