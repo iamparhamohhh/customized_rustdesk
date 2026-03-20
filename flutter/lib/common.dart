@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter_hbb/common/app_colors.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/foundation.dart';
@@ -169,31 +170,31 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
   final Color? divider;
 
   static final light = ColorThemeExtension(
-    border: Color(0xFFCCCCCC),
-    border2: Color(0xFFBBBBBB),
-    border3: Colors.black26,
-    highlight: Color(0xFFE5E5E5),
-    drag_indicator: Colors.grey[800],
-    shadow: Colors.black,
-    errorBannerBg: Color(0xFFFDEEEB),
-    me: Colors.green,
-    toastBg: Colors.black.withOpacity(0.6),
-    toastText: Colors.white,
-    divider: Colors.black38,
+    border: RahbarSemanticColors.borderLight,
+    border2: RahbarSemanticColors.border2Light,
+    border3: RahbarSemanticColors.border3Light.withOpacity(0.26),
+    highlight: RahbarSemanticColors.highlightLight,
+    drag_indicator: RahbarSemanticColors.dragIndicatorLight.withOpacity(0.80),
+    shadow: RahbarSemanticColors.shadowLight,
+    errorBannerBg: RahbarSemanticColors.errorBannerBgLight,
+    me: RahbarSemanticColors.meColorLight,
+    toastBg: RahbarSemanticColors.toastBgLight,
+    toastText: RahbarSemanticColors.toastTextLight,
+    divider: RahbarSemanticColors.dividerLight.withOpacity(0.38),
   );
 
   static final dark = ColorThemeExtension(
-    border: Color(0xFF555555),
-    border2: Color(0xFFE5E5E5),
-    border3: Colors.white24,
-    highlight: Color(0xFF3F3F3F),
-    drag_indicator: Colors.grey,
-    shadow: Colors.grey,
-    errorBannerBg: Color(0xFF470F2D),
-    me: Colors.greenAccent,
-    toastBg: Colors.white.withOpacity(0.6),
-    toastText: Colors.black,
-    divider: Colors.white38,
+    border: RahbarSemanticColors.borderDark,
+    border2: RahbarSemanticColors.border2Dark,
+    border3: RahbarSemanticColors.border3Dark.withOpacity(0.24),
+    highlight: RahbarSemanticColors.highlightDark,
+    drag_indicator: RahbarSemanticColors.dragIndicatorDark,
+    shadow: RahbarSemanticColors.shadowDark,
+    errorBannerBg: RahbarSemanticColors.errorBannerBgDark,
+    me: RahbarSemanticColors.meColorDark,
+    toastBg: RahbarSemanticColors.toastBgDark,
+    toastText: RahbarSemanticColors.toastTextDark,
+    divider: RahbarSemanticColors.dividerDark.withOpacity(0.38),
   );
 
   @override
@@ -250,18 +251,42 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
 class MyTheme {
   MyTheme._();
 
-  static const Color grayBg = Color(0xFFEFEFF2);
-  static const Color accent = Color(0xFF0071FF);
-  static const Color accent50 = Color(0x770071FF);
-  static const Color accent80 = Color(0xAA0071FF);
-  static const Color canvasColor = Color(0xFF212121);
-  static const Color border = Color(0xFFCCCCCC);
-  static const Color idColor = Color(0xFF00B6F0);
-  static const Color darkGray = Color.fromARGB(255, 148, 148, 148);
-  static const Color cmIdColor = Color(0xFF21790B);
+  // ── RahbarHesab brand palette aliases ────────────────────────────────────
+  // To change any colour: edit flutter/lib/common/app_colors.dart.
+
+  /// Light background / filled-input background  (replaces the old gray)
+  static const Color grayBg = RahbarSemanticColors.scaffoldBgLight;
+
+  /// Primary accent – golden yellow (buttons, progress bars, active icons)
+  static const Color accent = RahbarSemanticColors.accentLight;
+  static const Color accent50 =
+      RahbarColors.yellow50pct; // yellow @ ~47 % opacity
+  static const Color accent80 =
+      RahbarColors.yellow80pct; // yellow @ ~67 % opacity
+
+  /// Dark canvas / video area background
+  static const Color canvasColor = RahbarSemanticColors.scaffoldBgDark;
+
+  /// Default border colour (light mode)
+  static const Color border = RahbarSemanticColors.borderLight;
+
+  /// Peer-ID colour (shows in connection lists)
+  static const Color idColor = RahbarSemanticColors.idColorLight;
+
+  /// Muted mid-tone gray (unchanged – used for placeholder text)
+  static const Color darkGray = RahbarColors.neutral500;
+
+  /// Connection-manager peer-ID colour
+  static const Color cmIdColor = RahbarColors.green500;
+
+  /// Generic "dark" foreground shorthand
   static const Color dark = Colors.black87;
-  static const Color button = Color(0xFF2C8CFF);
-  static const Color hoverBorder = Color(0xFF999999);
+
+  /// Primary action button fill
+  static const Color button = RahbarSemanticColors.primaryLight;
+
+  /// Hover / focus border colour
+  static const Color hoverBorder = RahbarColors.purple600;
 
   // ListTile
   static const ListTileThemeData listTileTheme = ListTileThemeData(
@@ -375,9 +400,9 @@ class MyTheme {
     // https://stackoverflow.com/questions/77537315/after-upgrading-to-flutter-3-16-the-app-bar-background-color-button-size-and
     useMaterial3: false,
     brightness: Brightness.light,
-    hoverColor: Color.fromARGB(255, 224, 224, 224),
-    scaffoldBackgroundColor: Colors.white,
-    dialogBackgroundColor: Colors.white,
+    hoverColor: RahbarSemanticColors.hoverLight,
+    scaffoldBackgroundColor: RahbarSemanticColors.scaffoldBgLight,
+    dialogBackgroundColor: RahbarSemanticColors.dialogBgLight,
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
     ),
@@ -408,9 +433,9 @@ class MyTheme {
         bodySmall: TextStyle(fontSize: 12, color: Colors.black87, height: 1.25),
         bodyMedium:
             TextStyle(fontSize: 14, color: Colors.black87, height: 1.25),
-        labelLarge: TextStyle(fontSize: 16.0, color: MyTheme.accent80)),
-    cardColor: grayBg,
-    hintColor: Color(0xFFAAAAAA),
+        labelLarge: TextStyle(fontSize: 16.0, color: RahbarColors.yellowDark)),
+    cardColor: RahbarSemanticColors.cardBgLight,
+    hintColor: RahbarSemanticColors.textHintLight,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarThemeData(
       labelColor: Colors.black87,
@@ -454,7 +479,9 @@ class MyTheme {
         style:
             MenuStyle(backgroundColor: MaterialStatePropertyAll(Colors.white))),
     colorScheme: ColorScheme.light(
-        primary: Colors.blue, secondary: accent, background: grayBg),
+        primary: RahbarSemanticColors.primaryLight,
+        secondary: RahbarSemanticColors.accentLight,
+        background: RahbarSemanticColors.scaffoldBgLight),
     popupMenuTheme: PopupMenuThemeData(
         color: Colors.white,
         shape: RoundedRectangleBorder(
@@ -473,9 +500,9 @@ class MyTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: false,
     brightness: Brightness.dark,
-    hoverColor: Color.fromARGB(255, 45, 46, 53),
-    scaffoldBackgroundColor: Color(0xFF18191E),
-    dialogBackgroundColor: Color(0xFF18191E),
+    hoverColor: RahbarSemanticColors.hoverDark,
+    scaffoldBackgroundColor: RahbarSemanticColors.scaffoldBgDark,
+    dialogBackgroundColor: RahbarSemanticColors.dialogBgDark,
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
     ),
@@ -485,14 +512,14 @@ class MyTheme {
         borderRadius: BorderRadius.circular(18.0),
         side: BorderSide(
           width: 1,
-          color: Color(0xFF24252B),
+          color: RahbarSemanticColors.borderDark,
         ),
       ),
     ),
     scrollbarTheme: scrollbarThemeDark,
     inputDecorationTheme: (isDesktop || isWebDesktop)
         ? InputDecorationTheme(
-            fillColor: Color(0xFF24252B),
+            fillColor: RahbarSemanticColors.surfaceDark,
             filled: true,
             isDense: true,
             border: OutlineInputBorder(
@@ -508,10 +535,10 @@ class MyTheme {
       labelLarge: TextStyle(
         fontSize: 16.0,
         fontWeight: FontWeight.bold,
-        color: accent80,
+        color: RahbarColors.yellow700,
       ),
     ),
-    cardColor: Color(0xFF24252B),
+    cardColor: RahbarSemanticColors.cardBgDark,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarThemeData(
       labelColor: Colors.white70,
@@ -545,8 +572,8 @@ class MyTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        backgroundColor: Color(0xFF24252B),
-        side: BorderSide(color: Colors.white12, width: 0.5),
+        backgroundColor: RahbarSemanticColors.surfaceDark,
+        side: BorderSide(color: RahbarSemanticColors.borderDark, width: 0.5),
         disabledForegroundColor: Colors.white70,
         foregroundColor: Colors.white70,
         shape: RoundedRectangleBorder(
@@ -560,11 +587,12 @@ class MyTheme {
     listTileTheme: listTileTheme,
     menuBarTheme: MenuBarThemeData(
         style: MenuStyle(
-            backgroundColor: MaterialStatePropertyAll(Color(0xFF121212)))),
+            backgroundColor:
+                MaterialStatePropertyAll(RahbarSemanticColors.scaffoldBgDark))),
     colorScheme: ColorScheme.dark(
-      primary: Colors.blue,
-      secondary: accent,
-      background: Color(0xFF24252B),
+      primary: RahbarSemanticColors.primaryDark,
+      secondary: RahbarSemanticColors.accentDark,
+      background: RahbarSemanticColors.cardBgDark,
     ),
     popupMenuTheme: PopupMenuThemeData(
         shape: RoundedRectangleBorder(
@@ -4153,8 +4181,7 @@ Widget? buildAvatarWidget({
       width: size,
       height: size,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) =>
-          fallback ?? SizedBox.shrink(),
+      errorBuilder: (_, __, ___) => fallback ?? SizedBox.shrink(),
     ),
   );
 }
