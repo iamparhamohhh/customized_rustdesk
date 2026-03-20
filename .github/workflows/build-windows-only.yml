@@ -161,10 +161,10 @@ jobs:
           (Get-Content $f -Raw) -replace 'DialogThemeData', 'DialogTheme' -replace 'TabBarThemeData', 'TabBarTheme' | Set-Content $f -NoNewline
           Write-Host "Patched theme types in $f"
 
-      - name: Build RustDesk Windows Flutter
+      - name: Build RahbarDesk Windows Flutter
         run: |
           python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack
-          mv ./flutter/build/windows/x64/runner/Release ./rustdesk
+          mv ./flutter/build/windows/x64/runner/Release ./rahbardesk
 
       - name: Download usbmmidd driver
         run: |
@@ -172,10 +172,10 @@ jobs:
           Expand-Archive usbmmidd_v2.zip -DestinationPath .
           Remove-Item -Path usbmmidd_v2\Win32 -Recurse
           Remove-Item -Path "usbmmidd_v2\Win32" -Recurse -ErrorAction SilentlyContinue
-          mv usbmmidd_v2 ./rustdesk
+          mv usbmmidd_v2 ./rahbardesk
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rustdesk-windows-x64-flutter
-          path: rustdesk/
+          name: rahbardesk-windows-x64-flutter
+          path: rahbardesk/

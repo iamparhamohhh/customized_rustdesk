@@ -92,9 +92,9 @@ BEGIN
             VALUE "CompanyName", "Purslane Ltd" "\0"
             VALUE "FileDescription", "RahbarHesab Remote Desktop" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "rustdesk" "\0"
+            VALUE "InternalName", "rahbardesk" "\0"
             VALUE "LegalCopyright", "Copyright © 2025 Purslane Ltd. All rights reserved." "\0"
-            VALUE "OriginalFilename", "rustdesk.exe" "\0"
+            VALUE "OriginalFilename", "rahbardesk.exe" "\0"
             VALUE "ProductName", "RahbarHesab" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
