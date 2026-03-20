@@ -419,7 +419,8 @@ class MyTheme {
     scrollbarTheme: scrollbarTheme,
     inputDecorationTheme: isDesktop
         ? InputDecorationTheme(
-            fillColor: grayBg,
+            // White inputs on the purple scaffold stand out clearly.
+            fillColor: RahbarColors.white,
             filled: true,
             isDense: true,
             border: OutlineInputBorder(

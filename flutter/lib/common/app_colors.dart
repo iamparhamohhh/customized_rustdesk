@@ -95,8 +95,10 @@ abstract final class RahbarSemanticColors {
   static const Color onAccentLight =
       RahbarColors.neutral900; // text on yellow button
 
-  static const Color scaffoldBgLight = RahbarColors.neutral50;
-  static const Color cardBgLight = RahbarColors.neutral100;
+  /// Main window / scaffold — clearly lavender-purple, not near-white.
+  static const Color scaffoldBgLight = RahbarColors.purple100; // #EDE9FE
+  /// Cards and panels float as white on the purple scaffold.
+  static const Color cardBgLight = RahbarColors.white;
   static const Color surfaceLight = RahbarColors.white;
   static const Color dialogBgLight = RahbarColors.white;
 
