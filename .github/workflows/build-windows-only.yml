@@ -161,10 +161,34 @@ jobs:
           (Get-Content $f -Raw) -replace 'DialogThemeData', 'DialogTheme' -replace 'TabBarThemeData', 'TabBarTheme' | Set-Content $f -NoNewline
           Write-Host "Patched theme types in $f"
 
-      - name: Build RahbarDesk Windows Flutter
+      - name: Build virtual display library
+        shell: bash
         run: |
-          python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack
-          mv ./flutter/build/windows/x64/runner/Release ./rahbardesk
+          cd libs/virtual_display/dylib
+          cargo build --release
+
+      - name: Build Rust library
+        shell: bash
+        run: |
+          cargo build --features hwcodec,vram,flutter --lib --release
+          if [ ! -f "target/release/librustdesk.dll" ]; then
+            echo "ERROR: librustdesk.dll not found after cargo build"
+            exit 1
+          fi
+          echo "librustdesk.dll size: $(wc -c < target/release/librustdesk.dll) bytes"
+
+      - name: Build Flutter Windows app
+        shell: bash
+        run: |
+          cd flutter
+          flutter pub get
+          flutter build windows --release
+
+      - name: Assemble release bundle
+        shell: pwsh
+        run: |
+          Copy-Item target/release/deps/dylib_virtual_display.dll flutter/build/windows/x64/runner/Release/
+          Move-Item flutter/build/windows/x64/runner/Release rahbardesk
 
       - name: Download usbmmidd driver
         run: |
