@@ -1,9 +1,10 @@
 name: Build Windows (Flutter) - Manual
 
-# Run this manually from the Actions tab whenever you want a new .exe.
-# Takes ~30-40 min but actually produces the Flutter build with your changes.
+# Trigger manually from the Actions tab, or automatically via flutter-ci.yml.
+# Takes ~30-40 min and produces the Flutter Windows build with your changes.
 on:
   workflow_dispatch:
+  workflow_call:
 
 env:
   FLUTTER_VERSION: "3.24.5"
