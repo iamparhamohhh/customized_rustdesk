@@ -392,10 +392,10 @@ packages:
     dependency: "direct main"
     description:
       name: extended_text
-      sha256: d8f4a6e2676505b54dc0d5f5e8de9020667b402e9c1b3a8b030a83e568c99654
+      sha256: b0b6e87b8475048c3d6ae5b80faa4d6c9ad838568b3b88f56ee614a91f79fbb9
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.2"
+    version: "14.2.2"
   extended_text_library:
     dependency: transitive
     description:
@@ -1647,4 +1647,4 @@ packages:
     version: "0.2.4"
 sdks:
   dart: ">=3.8.0-0 <4.0.0"
-  flutter: ">=3.29.0"
+  flutter: ">=3.24.0"
