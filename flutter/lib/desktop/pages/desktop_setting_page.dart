@@ -2430,8 +2430,7 @@ class _AboutState extends State<_About> {
                     Text(
                       'Remote desktop, redefined.',
                       style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white),
+                          fontWeight: FontWeight.w800, color: Colors.white),
                     )
                   ],
                 )),

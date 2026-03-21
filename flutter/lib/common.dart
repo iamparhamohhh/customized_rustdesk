@@ -3683,17 +3683,29 @@ Color? disabledTextColor(BuildContext context, bool enabled) {
 }
 
 Widget loadPowered(BuildContext context) {
-  return Opacity(
-    opacity: 0.6,
-    child: Text(
-      '\u00a9 ${DateTime.now().year} Rahbar Team. All rights reserved.',
-      overflow: TextOverflow.clip,
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
-    ),
-  ).marginOnly(top: 6);
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(
+        'Rahbar Desk',
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+      ),
+      const SizedBox(height: 2),
+      Opacity(
+        opacity: 0.5,
+        child: Text(
+          '\u00a9 ${DateTime.now().year} Rahbar Team',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11),
+        ),
+      ),
+    ],
+  ).marginOnly(top: 4);
 }
 
-// max 300 x 60
 Widget loadLogo() {
   return FutureBuilder<ByteData>(
       future: rootBundle.load('assets/logo.png'),
@@ -3707,9 +3719,9 @@ Widget loadLogo() {
             },
           );
           return Container(
-            constraints: BoxConstraints(maxWidth: 300, maxHeight: 60),
+            constraints: BoxConstraints(maxWidth: 300, maxHeight: 100),
             child: image,
-          ).marginOnly(left: 12, right: 12, top: 12);
+          ).marginOnly(left: 16, right: 16, top: 16);
         }
         return const Offstage();
       });
