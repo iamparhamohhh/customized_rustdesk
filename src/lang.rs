@@ -118,12 +118,8 @@ pub fn translate_locale(name: String, locale: &str) -> String {
         }
     }
     if lang.is_empty() {
-        lang = locale
-            .split("-")
-            .next()
-            .map(|x| x.split("_").next().unwrap_or_default())
-            .unwrap_or_default()
-            .to_owned();
+        // Default to Farsi for Rahbar Desk
+        lang = "fa".to_owned();
     }
     let lang = lang.to_lowercase();
     let m = match lang.as_str() {

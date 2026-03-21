@@ -427,7 +427,7 @@ class MyTheme {
             ),
           )
         : null,
-    fontFamilyFallback: const ['Vazirmatn'],
+    fontFamily: 'Vazirmatn',
     textTheme: const TextTheme(
         titleLarge: TextStyle(fontSize: 19, color: Colors.black87),
         titleSmall: TextStyle(fontSize: 14, color: Colors.black87),
@@ -528,7 +528,7 @@ class MyTheme {
             ),
           )
         : null,
-    fontFamilyFallback: const ['Vazirmatn'],
+    fontFamily: 'Vazirmatn',
     textTheme: const TextTheme(
       titleLarge: TextStyle(fontSize: 19),
       titleSmall: TextStyle(fontSize: 14),
@@ -3687,7 +3687,7 @@ Widget loadPowered(BuildContext context) {
     mainAxisSize: MainAxisSize.min,
     children: [
       Text(
-        'Rahbar Desk',
+        translate('app_brand_name'),
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -3698,7 +3698,7 @@ Widget loadPowered(BuildContext context) {
       Opacity(
         opacity: 0.5,
         child: Text(
-          '\u00a9 ${DateTime.now().year} Rahbar Team',
+          '\u00a9 ${DateTime.now().year} ${translate('app_team_name')}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11),
         ),
       ),

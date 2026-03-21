@@ -6,6 +6,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
+import 'package:flutter_hbb/common/app_colors.dart';
 import 'package:flutter_hbb/common/widgets/animated_rotation_widget.dart';
 import 'package:flutter_hbb/common/widgets/app_banner.dart';
 import 'package:flutter_hbb/common/widgets/custom_password.dart';
@@ -82,18 +83,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final isOutgoingOnly = bind.isOutgoingOnly();
     final children = <Widget>[
       if (!isOutgoingOnly) buildPresetPasswordWarning(),
-      Align(
-        alignment: Alignment.center,
-        child: loadLogo(),
-      ),
-      Align(
-        alignment: Alignment.center,
-        child: loadPowered(context),
-      ),
+      // Branded header section
+      _buildBrandHeader(context),
       const AppBanner(),
-      buildTip(context),
-      if (!isOutgoingOnly) buildIDBoard(context),
-      if (!isOutgoingOnly) buildPasswordBoard(context),
+      if (!isOutgoingOnly) buildIDCard(context),
+      if (!isOutgoingOnly) buildPasswordCard(context),
       FutureBuilder<Widget>(
         future: Future.value(
             Obx(() => buildHelpCards(stateGlobal.updateUrl.value))),
@@ -177,6 +171,229 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               )
           ],
         ),
+      ),
+    );
+  }
+
+  /// Branded header: logo + brand name on a gradient background
+  Widget _buildBrandHeader(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark
+              ? [RahbarColors.purpleDark600, RahbarColors.purpleDark800]
+              : [RahbarColors.purple800, RahbarColors.purple700],
+        ),
+      ),
+      child: Column(
+        children: [
+          loadIcon(56),
+          const SizedBox(height: 8),
+          Text(
+            translate('app_brand_name'),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Opacity(
+            opacity: 0.7,
+            child: Text(
+              translate('desk_tip'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 10, color: Colors.white70),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Card-styled ID display
+  Widget buildIDCard(BuildContext context) {
+    final model = gFFI.serverModel;
+    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.fromLTRB(14, 10, 10, 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: MyTheme.accent.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.perm_identity, size: 16, color: MyTheme.accent),
+                  const SizedBox(width: 6),
+                  Text(
+                    translate("ID"),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: textColor?.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+              buildPopupMenu(context),
+            ],
+          ),
+          GestureDetector(
+            onDoubleTap: () {
+              Clipboard.setData(ClipboardData(text: model.serverId.text));
+              showToast(translate("Copied"));
+            },
+            child: TextFormField(
+              controller: model.serverId,
+              readOnly: true,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.only(top: 4, bottom: 4),
+                isDense: true,
+              ),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+                letterSpacing: 1.5,
+              ),
+            ).workaroundFreezeLinuxMint(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Card-styled password display
+  Widget buildPasswordCard(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: gFFI.serverModel,
+      child: Consumer<ServerModel>(
+        builder: (context, model, child) {
+          return _buildPasswordCardInner(context, model);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPasswordCardInner(BuildContext context, ServerModel model) {
+    RxBool refreshHover = false.obs;
+    RxBool editHover = false.obs;
+    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    final showOneTime = model.approveMode != 'click' &&
+        model.verificationMethod != kUsePermanentPassword;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.fromLTRB(14, 10, 10, 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: MyTheme.accent.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.lock_outline, size: 16, color: MyTheme.accent),
+              const SizedBox(width: 6),
+              Expanded(
+                child: AutoSizeText(
+                  translate("One-time Password"),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: textColor?.withOpacity(0.6),
+                  ),
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onDoubleTap: () {
+                    if (showOneTime) {
+                      Clipboard.setData(
+                          ClipboardData(text: model.serverPasswd.text));
+                      showToast(translate("Copied"));
+                    }
+                  },
+                  child: TextFormField(
+                    controller: model.serverPasswd,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.only(top: 4, bottom: 4),
+                      isDense: true,
+                    ),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                    ),
+                  ).workaroundFreezeLinuxMint(),
+                ),
+              ),
+              if (showOneTime)
+                AnimatedRotationWidget(
+                  onPressed: () => bind.mainUpdateTemporaryPassword(),
+                  child: Tooltip(
+                    message: translate('Refresh Password'),
+                    child: Obx(() => RotatedBox(
+                        quarterTurns: 2,
+                        child: Icon(
+                          Icons.refresh,
+                          color: refreshHover.value
+                              ? textColor
+                              : Color(0xFFDDDDDD),
+                          size: 20,
+                        ))),
+                  ),
+                  onHover: (value) => refreshHover.value = value,
+                ).marginOnly(right: 4),
+              if (!bind.isDisableSettings())
+                InkWell(
+                  child: Tooltip(
+                    message: translate('Change Password'),
+                    child: Obx(
+                      () => Icon(
+                        Icons.edit,
+                        color:
+                            editHover.value ? textColor : Color(0xFFDDDDDD),
+                        size: 20,
+                      ).marginOnly(right: 4),
+                    ),
+                  ),
+                  onTap: () =>
+                      DesktopSettingPage.switch2page(SettingsTabKey.safety),
+                  onHover: (value) => editHover.value = value,
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
