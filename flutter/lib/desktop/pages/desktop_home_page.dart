@@ -381,8 +381,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                     child: Obx(
                       () => Icon(
                         Icons.edit,
-                        color:
-                            editHover.value ? textColor : Color(0xFFDDDDDD),
+                        color: editHover.value ? textColor : Color(0xFFDDDDDD),
                         size: 20,
                       ).marginOnly(right: 4),
                     ),
