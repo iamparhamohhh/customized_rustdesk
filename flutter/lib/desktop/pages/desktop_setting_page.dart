@@ -2394,29 +2394,45 @@ class _AboutState extends State<_About> {
                     style: linkStyle,
                   ).marginSymmetric(vertical: 4.0)),
               Container(
-                decoration: BoxDecoration(color: Color(0xFF6B21A8)),
+                decoration: BoxDecoration(
+                  color: Color(0xFF6B21A8),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 padding:
-                    const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+                    const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 child: SelectionArea(
-                    child: Row(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '© ${DateTime.now().toString().substring(0, 4)} Rahbar Team. All rights reserved.\n$license',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          Text(
-                            'Remote desktop, redefined.',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white),
-                          )
-                        ],
+                    Text(
+                      translate('About Rahbar Team'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    Text(
+                      translate('rahbar_team_description'),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '© ${DateTime.now().toString().substring(0, 4)} Rahbar Team. All rights reserved.\n$license',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Remote desktop, redefined.',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white),
+                    )
                   ],
                 )),
               ).marginSymmetric(vertical: 4.0)

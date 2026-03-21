@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common/widgets/setting_widgets.dart';
+import 'package:flutter_hbb/common/widgets/app_banner.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -286,7 +287,8 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
         Align(
           alignment: Alignment.center,
           child: loadLogo(),
-        )
+        ),
+        const AppBanner(),
       ],
     ));
     final List<AbstractSettingsTile> enhancementsTiles = [];
@@ -1086,11 +1088,46 @@ void showAbout(OverlayDialogManager dialogManager) {
   dialogManager.show((setState, close, context) {
     return CustomAlertDialog(
       title: Text(translate('About Rahbar Desk')),
-      content: Wrap(direction: Axis.vertical, spacing: 12, children: [
-        Text('Version: $version'),
-        Text('© ${DateTime.now().year} Rahbar Team. All rights reserved.',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
-      ]),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Version: $version'),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFF6B21A8),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  translate('About Rahbar Team'),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  translate('rahbar_team_description'),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text('© ${DateTime.now().year} Rahbar Team. All rights reserved.',
+              style: TextStyle(fontSize: 12, color: Colors.grey)),
+        ],
+      ),
       actions: [],
     );
   }, clickMaskDismiss: true, backDismiss: true);

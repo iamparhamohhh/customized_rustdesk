@@ -427,6 +427,7 @@ class MyTheme {
             ),
           )
         : null,
+    fontFamilyFallback: const ['Vazirmatn'],
     textTheme: const TextTheme(
         titleLarge: TextStyle(fontSize: 19, color: Colors.black87),
         titleSmall: TextStyle(fontSize: 14, color: Colors.black87),
@@ -527,6 +528,7 @@ class MyTheme {
             ),
           )
         : null,
+    fontFamilyFallback: const ['Vazirmatn'],
     textTheme: const TextTheme(
       titleLarge: TextStyle(fontSize: 19),
       titleSmall: TextStyle(fontSize: 14),

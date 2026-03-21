@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/animated_rotation_widget.dart';
+import 'package:flutter_hbb/common/widgets/app_banner.dart';
 import 'package:flutter_hbb/common/widgets/custom_password.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
@@ -90,6 +91,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         alignment: Alignment.center,
         child: loadLogo(),
       ),
+      const AppBanner(),
       buildTip(context),
       if (!isOutgoingOnly) buildIDBoard(context),
       if (!isOutgoingOnly) buildPasswordBoard(context),
