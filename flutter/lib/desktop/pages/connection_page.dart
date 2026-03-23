@@ -395,14 +395,14 @@ class _ConnectionPageState extends State<ConnectionPage>
             children: [
               Row(
                 children: [
-                  Icon(Icons.perm_identity, size: 16, color: MyTheme.accent),
+                  Icon(Icons.perm_identity, size: 20, color: MyTheme.accent),
                   const SizedBox(width: 6),
                   Text(
                     translate("ID"),
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: textColor?.withOpacity(0.6),
+                      fontSize: 19,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
                     ),
                   ),
                 ],
@@ -481,15 +481,15 @@ class _ConnectionPageState extends State<ConnectionPage>
         children: [
           Row(
             children: [
-              Icon(Icons.lock_outline, size: 16, color: MyTheme.accent),
+              Icon(Icons.lock_outline, size: 20, color: MyTheme.accent),
               const SizedBox(width: 6),
               Expanded(
                 child: AutoSizeText(
                   translate("One-time Password"),
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: textColor?.withOpacity(0.6),
+                    fontSize: 19,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
                   ),
                   maxLines: 1,
                 ),
@@ -680,6 +680,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                           focusNode: fieldFocusNode,
                           style: const TextStyle(
                             fontFamily: 'WorkSans',
+                            fontFamilyFallback: ['Vazirmatn'],
                             fontSize: 22,
                             height: 1.4,
                           ),

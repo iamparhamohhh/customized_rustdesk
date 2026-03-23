@@ -85,7 +85,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       if (!isOutgoingOnly) buildPresetPasswordWarning(),
       // Branded header section
       _buildBrandHeader(context),
-      const AppBanner(),
       FutureBuilder<Widget>(
         future: Future.value(
             Obx(() => buildHelpCards(stateGlobal.updateUrl.value))),
@@ -104,6 +103,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           }
         },
       ),
+      const AppBanner(),
       buildPluginEntry(),
     ];
     if (isIncomingOnly) {
@@ -190,7 +190,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       ),
       child: Column(
         children: [
-          loadIcon(56),
+          loadIcon(66),
           const SizedBox(height: 8),
           Text(
             translate('app_brand_name'),

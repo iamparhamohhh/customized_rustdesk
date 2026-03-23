@@ -1,5 +1,91 @@
+# Rahbardesk
+
+A customized [RustDesk](https://github.com/rustdesk/rustdesk) remote desktop client with Persian (Vazirmatn) font support and branded UI.
+
+---
+
+## Releasing the Windows App to a Client
+
+Run the **"Build Windows (Flutter) - Manual"** workflow from the GitHub Actions tab:
+
+1. Go to your repository on GitHub → **Actions**
+2. In the left sidebar select **"Build Windows (Flutter) - Manual"**
+3. Click **"Run workflow"** → **Run workflow**
+4. Wait ~30–40 minutes for the build to complete
+5. Download the artifact **`rahbardesk-windows-x64-flutter`** (a zip of the `rahbardesk/` folder)
+6. Send that folder (or zip it) to the client — it is self-contained and ready to run
+
+---
+
+## UI Customization Guide
+
+### Banner Image
+
+A banner image is shown below the install/update card on the home screen left pane.
+
+1. Place your banner image at `flutter/assets/banner.png` (PNG format, any resolution — it will scale to fit)
+2. Add it to the assets list in `flutter/pubspec.yaml` if not already present:
+   ```yaml
+   assets:
+     - assets/banner.png
+   ```
+3. Rebuild. If the file is absent the banner area is silently hidden.
+
+### App Icon (Windows + Android)
+
+Replace the source image at `flutter/assets/main_icon.jpg` with your own square image, then run the icon generation script:
+
+```powershell
+cd e:\customized_rustdesk
+python res/generate_icons.py   # generates Windows ICO + all Android mipmap PNGs
+```
+
+Icon targets:
+| Platform | File |
+|----------|------|
+| Windows | `flutter/windows/runner/resources/app_icon.ico` |
+| Android (mdpi) | `flutter/android/app/src/main/res/mipmap-mdpi/ic_launcher.png` (48 px) |
+| Android (hdpi) | `flutter/android/app/src/main/res/mipmap-hdpi/ic_launcher.png` (72 px) |
+| Android (xhdpi) | `flutter/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png` (96 px) |
+| Android (xxhdpi) | `flutter/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png` (144 px) |
+| Android (xxxhdpi) | `flutter/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png` (192 px) |
+
+### Logo (Top-left of home screen)
+
+Replace `flutter/assets/icon.png` with your own image. The displayed size is controlled in `flutter/lib/desktop/pages/desktop_home_page.dart` → `_buildBrandHeader()` → `loadIcon(66)` (66 px).
+
+### Brand Colors / Theme
+
+Edit `flutter/lib/common.dart`:
+- `MyTheme.accent` — yellow accent color used on buttons and icons
+- `RahbarColors.purple800/700/600` — gradient used in the header bar
+
+### Fonts
+
+The app uses **Vazirmatn** globally (Regular / Medium / Bold). Font files live in `flutter/assets/fonts/`. To add a weight, drop the `.ttf` file there and declare it in `flutter/pubspec.yaml` under `fonts → Vazirmatn`.
+
+### App Name / Window Title
+
+- Windows installer name: `flutter/windows/runner/main.cpp` and `flutter/windows/runner/Runner.rc`
+- Android app label: `flutter/android/app/src/main/AndroidManifest.xml` → `android:label`
+
+---
+
+## Local Development Build
+
+```powershell
+cd e:\customized_rustdesk\flutter
+flutter build windows --release
+# Output: build\windows\x64\runner\Release\rahbardesk.exe
+```
+
+> **Note:** Local builds use your installed Flutter version (3.38.9 / Dart 3.10.8). CI uses a pinned custom Flutter engine (3.24.5) — do not add pub dependencies that require Dart ≥ 3.7.0, as they will break CI.
+
+---
+
+## Original RustDesk Documentation
+
 <p align="center">
-  <img src="res/logo-header.svg" alt="RustDesk - Your remote desktop"><br>
   <a href="#raw-steps-to-build">Build</a> •
   <a href="#how-to-build-with-docker">Docker</a> •
   <a href="#file-structure">Structure</a> •
