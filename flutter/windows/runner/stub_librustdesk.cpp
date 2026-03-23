@@ -1,34 +1,52 @@
 // Stub librustdesk.dll - provides minimal exports so the Flutter app can load.
 // Replace with the real Rust-built DLL for full functionality.
-// Build: cl /LD /Fe:librustdesk.dll stub_librustdesk.cpp
+// Build (MSVC):  cl /LD /Fe:librustdesk.dll stub_librustdesk.cpp
+// Build (clang): clang++ -shared -o librustdesk.dll stub_librustdesk.cpp -target x86_64-pc-windows-msvc
 
 #include <cstdint>
 #include <cstring>
+#include <windows.h>
+
+// ── Signatures must match exactly what main.cpp expects via GetProcAddress ──
+//
+// typedef char** (*FUNC_RUSTDESK_CORE_MAIN)(int*);
+//   → returns non-null char** to allow Flutter to start; null to abort.
+//
+// typedef void   (*FUNC_RUSTDESK_FREE_ARGS)(char**, int);
+//   → frees the array returned by rustdesk_core_main_args.
+//
+// typedef int    (*FUNC_RUSTDESK_GET_APP_NAME)(wchar_t*, int);
+//   → returns 0 if it wrote the name into the buffer; non-0 to use default.
 
 extern "C" {
 
-// The only symbol looked up directly via DynamicLibrary.lookupFunction
-// Signature: Pointer<Uint8> Function(Pointer<Utf8> sessionId, Int32 display)
-__declspec(dllexport) uint8_t* session_get_rgba(const char* session_id, int32_t display) {
-    return nullptr;
+// Return a valid (empty) argv so Flutter launches.
+static char* g_empty_argv[1] = { nullptr };
+
+__declspec(dllexport) char** rustdesk_core_main_args(int* out_argc) {
+    if (out_argc) *out_argc = 0;
+    return g_empty_argv;   // non-null → Flutter will start
 }
 
-// Windows entry point - called from C runner
-__declspec(dllexport) int rustdesk_core_main_args(int argc, const char** argv) {
-    return 0;
+__declspec(dllexport) void free_c_args(char** args, int len) {
+    // stub: nothing to free
+    (void)args; (void)len;
 }
 
-__declspec(dllexport) void free_c_args(const char** args, int len) {
+// Return non-0 → caller keeps its default app name ("Rahbar Desk").
+__declspec(dllexport) int get_rustdesk_app_name(wchar_t* buf, int size) {
+    (void)buf; (void)size;
+    return 1;
 }
 
-__declspec(dllexport) const char* get_rustdesk_app_name() {
-    return "RustDesk";
+// flutter_rust_bridge store_dart_post_cobject – needed by generated bridge
+__declspec(dllexport) void store_dart_post_cobject(void* ptr) {
+    (void)ptr;
 }
 
 } // extern "C"
 
-// DLL entry point
-#include <windows.h>
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    (void)hModule; (void)ul_reason_for_call; (void)lpReserved;
     return TRUE;
 }

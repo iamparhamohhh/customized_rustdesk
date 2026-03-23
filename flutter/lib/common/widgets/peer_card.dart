@@ -82,13 +82,130 @@ class _PeerCardState extends State<_PeerCard>
 
   Widget _buildPortrait() {
     final peer = super.widget.peer;
-    return Card(
-        margin: EdgeInsets.symmetric(horizontal: 2),
-        child: gestureDetector(
+    return gestureDetector(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(_cardRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.22),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: const Color(0x334C2485),
+              blurRadius: 16,
+              offset: const Offset(-2, -2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(_cardRadius),
+          child: _buildPortraitGridCard(context, peer),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortraitGridCard(BuildContext context, Peer peer) {
+    hideUsernameOnCard ??=
+        bind.mainGetBuildinOption(key: kHideUsernameOnCard) == 'Y';
+    final name = hideUsernameOnCard == true
+        ? peer.hostname
+        : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}';
+    const deepPurple = Color(0xFF2D1458);
+    const gold = Color(0xFFFFD600);
+
+    return Column(
+      children: [
+        // ── Top: coloured icon area ──────────────────────────────────
+        Expanded(
+          flex: 5,
           child: Container(
-              padding: EdgeInsets.only(left: 12, top: 8, bottom: 8),
-              child: _buildPeerTile(context, peer, null)),
-        ));
+            width: double.infinity,
+            color: str2color('${peer.id}${peer.platform}', 0x8f),
+            child: Stack(
+              children: [
+                Center(
+                  child:
+                      getPlatformImage(peer.platform, size: 44).paddingAll(6),
+                ),
+                // Online indicator dot
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: peer.online
+                          ? const Color(0xFF34D399)
+                          : const Color(0xFF7B68A8),
+                      boxShadow: peer.online
+                          ? [
+                              const BoxShadow(
+                                color: Color(0x5534D399),
+                                blurRadius: 6,
+                              )
+                            ]
+                          : null,
+                    ),
+                  ),
+                ),
+                if (_shouldBuildPasswordIcon(peer))
+                  const Positioned(
+                    top: 6,
+                    left: 6,
+                    child: Icon(Icons.key, size: 10, color: Colors.white70),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        // ── Bottom: text + action ────────────────────────────────────
+        Expanded(
+          flex: 3,
+          child: Container(
+            width: double.infinity,
+            color: deepPurple,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        peer.alias.isEmpty ? formatID(peer.id) : peer.alias,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: gold,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      if (name.isNotEmpty)
+                        Text(
+                          name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 9,
+                          ),
+                        ),
+                    ],
+                  ).paddingOnly(left: 10),
+                ),
+                checkBoxOrActionMorePortrait(peer),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildLandscape() {

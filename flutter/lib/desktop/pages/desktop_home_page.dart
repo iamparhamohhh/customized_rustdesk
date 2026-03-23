@@ -86,8 +86,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       // Branded header section
       _buildBrandHeader(context),
       const AppBanner(),
-      if (!isOutgoingOnly) buildIDCard(context),
-      if (!isOutgoingOnly) buildPasswordCard(context),
       FutureBuilder<Widget>(
         future: Future.value(
             Obx(() => buildHelpCards(stateGlobal.updateUrl.value))),

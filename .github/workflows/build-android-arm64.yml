@@ -76,6 +76,13 @@ jobs:
           [[ "3.24.5" == ${{ env.FLUTTER_VERSION }} ]] && \
             git apply ${{ github.workspace }}/.github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff || true
 
+      - name: Patch theme types for Flutter 3.24.5 compat
+        run: |
+          # Flutter 3.24.5 uses DialogTheme/TabBarTheme; 3.27+ renamed them to DialogThemeData/TabBarThemeData.
+          f='flutter/lib/common.dart'
+          sed -i 's/DialogThemeData/DialogTheme/g; s/TabBarThemeData/TabBarTheme/g' "$f"
+          echo "Patched theme types in $f"
+
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:

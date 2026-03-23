@@ -5,7 +5,14 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter_hbb/common/widgets/animated_rotation_widget.dart';
 import 'package:flutter_hbb/common/widgets/connection_page_title.dart';
+import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
+import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
+import 'package:flutter_hbb/models/server_model.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
 import 'package:flutter_hbb/models/state_model.dart';
@@ -168,21 +175,24 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
   }
 
   updateStatus() async {
-    final status =
-        jsonDecode(await bind.mainGetConnectStatus()) as Map<String, dynamic>;
-    final statusNum = status['status_num'] as int;
-    if (statusNum == 0) {
-      stateGlobal.svcStatus.value = SvcStatus.connecting;
-    } else if (statusNum == -1) {
-      stateGlobal.svcStatus.value = SvcStatus.notReady;
-    } else if (statusNum == 1) {
-      stateGlobal.svcStatus.value = SvcStatus.ready;
-    } else {
-      stateGlobal.svcStatus.value = SvcStatus.notReady;
-    }
-    _svcIsUsingPublicServer.value = await bind.mainIsUsingPublicServer();
     try {
-      stateGlobal.videoConnCount.value = status['video_conn_count'] as int;
+      final raw = await bind.mainGetConnectStatus();
+      if (raw.isEmpty) return;
+      final status = jsonDecode(raw) as Map<String, dynamic>;
+      final statusNum = status['status_num'] as int;
+      if (statusNum == 0) {
+        stateGlobal.svcStatus.value = SvcStatus.connecting;
+      } else if (statusNum == -1) {
+        stateGlobal.svcStatus.value = SvcStatus.notReady;
+      } else if (statusNum == 1) {
+        stateGlobal.svcStatus.value = SvcStatus.ready;
+      } else {
+        stateGlobal.svcStatus.value = SvcStatus.notReady;
+      }
+      _svcIsUsingPublicServer.value = await bind.mainIsUsingPublicServer();
+      try {
+        stateGlobal.videoConnCount.value = status['video_conn_count'] as int;
+      } catch (_) {}
     } catch (_) {}
   }
 }
@@ -309,10 +319,22 @@ class _ConnectionPageState extends State<ConnectionPage>
         Expanded(
             child: Column(
           children: [
-            Row(
-              children: [
-                Flexible(child: _buildRemoteIDTextField(context)),
-              ],
+            ChangeNotifierProvider.value(
+              value: gFFI.serverModel,
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _buildRemoteIDTextField(context)),
+                    if (!isOutgoingOnly) ...[
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildIDCard(context)),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildPasswordCard(context)),
+                    ],
+                  ],
+                ).paddingOnly(right: 12),
+              ),
             ).marginOnly(top: 22),
             SizedBox(height: 12),
             Divider().paddingOnly(right: 12),
@@ -340,10 +362,238 @@ class _ConnectionPageState extends State<ConnectionPage>
 
   /// UI for the remote ID TextField.
   /// Search for a peer.
+  Widget _buildIDCard(BuildContext context) {
+    final model = gFFI.serverModel;
+    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 160),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MyTheme.accent.withOpacity(0.25),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black
+                    : MyTheme.accent)
+                .withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.perm_identity, size: 16, color: MyTheme.accent),
+                  const SizedBox(width: 6),
+                  Text(
+                    translate("ID"),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: textColor?.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+              _buildPopupMenu(context),
+            ],
+          ),
+          GestureDetector(
+            onDoubleTap: () {
+              Clipboard.setData(ClipboardData(text: model.serverId.text));
+              showToast(translate("Copied"));
+            },
+            child: TextFormField(
+              controller: model.serverId,
+              readOnly: true,
+              decoration: const InputDecoration(
+                filled: false,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+              ),
+              style: TextStyle(
+                fontSize: 22,
+                height: 1.4,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+                letterSpacing: 1.5,
+              ),
+            ).workaroundFreezeLinuxMint(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordCard(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: gFFI.serverModel,
+      child: Consumer<ServerModel>(
+        builder: (context, model, child) {
+          return _buildPasswordCardInner(context, model);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPasswordCardInner(BuildContext context, ServerModel model) {
+    RxBool refreshHover = false.obs;
+    RxBool editHover = false.obs;
+    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    final showOneTime = model.approveMode != 'click' &&
+        model.verificationMethod != kUsePermanentPassword;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 160),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MyTheme.accent.withOpacity(0.25),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black
+                    : MyTheme.accent)
+                .withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.lock_outline, size: 16, color: MyTheme.accent),
+              const SizedBox(width: 6),
+              Expanded(
+                child: AutoSizeText(
+                  translate("One-time Password"),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: textColor?.withOpacity(0.6),
+                  ),
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onDoubleTap: () {
+                    if (showOneTime) {
+                      Clipboard.setData(
+                          ClipboardData(text: model.serverPasswd.text));
+                      showToast(translate("Copied"));
+                    }
+                  },
+                  child: TextFormField(
+                    controller: model.serverPasswd,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      filled: false,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+                    ),
+                    style: TextStyle(
+                      fontSize: 22,
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                    ),
+                  ).workaroundFreezeLinuxMint(),
+                ),
+              ),
+              if (showOneTime)
+                AnimatedRotationWidget(
+                  onPressed: () => bind.mainUpdateTemporaryPassword(),
+                  child: Tooltip(
+                    message: translate('Refresh Password'),
+                    child: Obx(() => RotatedBox(
+                        quarterTurns: 2,
+                        child: Icon(
+                          Icons.refresh,
+                          color: refreshHover.value
+                              ? textColor
+                              : const Color(0xFFDDDDDD),
+                          size: 20,
+                        ))),
+                  ),
+                  onHover: (value) => refreshHover.value = value,
+                ).marginOnly(right: 4),
+              if (!bind.isDisableSettings())
+                InkWell(
+                  child: Tooltip(
+                    message: translate('Change Password'),
+                    child: Obx(
+                      () => Icon(
+                        Icons.edit,
+                        color: editHover.value
+                            ? textColor
+                            : const Color(0xFFDDDDDD),
+                        size: 20,
+                      ).marginOnly(right: 4),
+                    ),
+                  ),
+                  onTap: () =>
+                      DesktopSettingPage.switch2page(SettingsTabKey.safety),
+                  onHover: (value) => editHover.value = value,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPopupMenu(BuildContext context) {
+    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    RxBool hover = false.obs;
+    return InkWell(
+      onTap: DesktopTabPage.onAddSetting,
+      child: Tooltip(
+        message: translate('Settings'),
+        child: Obx(
+          () => CircleAvatar(
+            radius: 15,
+            backgroundColor: hover.value
+                ? Theme.of(context).scaffoldBackgroundColor
+                : Theme.of(context).colorScheme.background,
+            child: Icon(
+              Icons.more_vert_outlined,
+              size: 20,
+              color: hover.value ? textColor : textColor?.withOpacity(0.5),
+            ),
+          ),
+        ),
+      ),
+      onHover: (value) => hover.value = value,
+    );
+  }
+
   Widget _buildRemoteIDTextField(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     var w = Container(
-      width: 320 + 20 * 2,
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(16)),

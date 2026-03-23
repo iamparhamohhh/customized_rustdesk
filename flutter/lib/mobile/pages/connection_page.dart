@@ -152,10 +152,17 @@ class _ConnectionPageState extends State<ConnectionPage> {
       height: 84,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-        child: Ink(
+        child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.all(Radius.circular(13)),
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.10),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: Row(
             children: <Widget>[
@@ -333,13 +340,28 @@ class _ConnectionPageState extends State<ConnectionPage> {
                         },
                         icon: Icon(Icons.clear, color: MyTheme.darkGray)),
                   )),
-              SizedBox(
-                width: 60,
-                height: 60,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_forward,
-                      color: MyTheme.darkGray, size: 45),
-                  onPressed: onConnect,
+              GestureDetector(
+                onTap: onConnect,
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  margin: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: MyTheme.accent,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: MyTheme.accent.withOpacity(0.45),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Color(0xFF12082A),
+                    size: 28,
+                  ),
                 ),
               ),
             ],
