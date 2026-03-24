@@ -2,6 +2,18 @@
 <Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
 	<!--$PreVarsStart$-->
+	<?define Version="1.4.6.29573136" ?>
+	<?define Manufacturer="Rahbar Hesab" ?>
+	<?define Product="rahbardesk" ?>
+	<?define Description="rahbardesk Installer" ?>
+	<?define ProductLower="rahbardesk" ?>
+	<?define RegKeyRoot=".$(var.ProductLower)" ?>
+	<?define RegKeyInstall="$(var.RegKeyRoot)\Install" ?>
+	<?define BuildDir="E:\customized_rustdesk\flutter\build\windows\x64\runner\Release" ?>
+	<?define BuildDate="2026-03-25 01:15" ?>
+
+	<!-- The UpgradeCode must be consistent for each product. ! -->
+	<?define UpgradeCode = "838b3255-94d9-571f-985b-a7eb2df7907f" ?>
 	<!--$PreVarsEnd$-->
 
 </Include>

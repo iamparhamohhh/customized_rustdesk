@@ -50,6 +50,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
       - name: Install bridge codegen tools
         run: |
           cargo install cargo-expand --version ${{ env.CARGO_EXPAND_VERSION }} --locked
@@ -106,6 +112,12 @@ jobs:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
 
       # ── Build the Flutter Windows app ───────────────────────────────────────
       - name: Setup vcpkg with Github Actions binary cache
@@ -198,8 +210,32 @@ jobs:
           Remove-Item -Path "usbmmidd_v2\Win32" -Recurse -ErrorAction SilentlyContinue
           mv usbmmidd_v2 ./rahbardesk
 
+      - name: Set MSI metadata
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path Cargo.toml -Pattern '^version\s*=\s*"([^"]+)"').Matches[0].Groups[1].Value
+          $buildDate = Get-Date -Format 'yyyy-MM-dd HH:mm'
+          "APP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "APP_BUILD_DATE=$buildDate" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build MSI installer
+        shell: pwsh
+        run: |
+          Push-Location .\res\msi
+          python .\preprocess.py --arp --app-name rahbardesk --manufacturer "Rahbar Hesab" -v $env:APP_VERSION --build-date "$env:APP_BUILD_DATE" -d "..\..\rahbardesk"
+          nuget restore msi.sln
+          msbuild msi.sln -p:Configuration=Release -p:Platform=x64 /p:TargetVersion=Windows10
+          Pop-Location
+          Copy-Item .\res\msi\Package\bin\x64\Release\en-us\Package.msi .\rahbardesk-setup.msi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: rahbardesk-windows-x64-flutter
           path: rahbardesk/
+
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rahbardesk-windows-x64-msi
+          path: .\rahbardesk-setup.msi

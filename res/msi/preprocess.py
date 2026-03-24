@@ -79,6 +79,12 @@ def make_parser():
         "-v", "--version", type=str, default="", help="The app version."
     )
     parser.add_argument(
+        "--build-date",
+        type=str,
+        default="",
+        help="The app build date in 'YYYY-MM-DD HH:MM' format.",
+    )
+    parser.add_argument(
         "--revision-version", type=int, default=default_revision_version(), help="The revision version."
     )
     parser.add_argument(
@@ -482,11 +488,15 @@ def init_global_vars(dist_dir, app_name, args):
             raise ValueError(f"Invalid revision version: {args.revision_version}")    
         g_version = f"{g_version}.{args.revision_version}"
 
-    g_build_date = read_process_output("--build-date")
+    g_build_date = args.build_date.strip()
+    if g_build_date == "":
+        g_build_date = read_process_output("--build-date")
     build_date_pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}")
     if not build_date_pattern.match(g_build_date):
-        print(f"Error: build date {g_build_date} not found in {dist_app}")
-        return False
+        g_build_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        print(
+            f"Warning: build date not found in {dist_app}, using current time {g_build_date}"
+        )
 
     return True
 
