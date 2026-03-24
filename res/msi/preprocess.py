@@ -114,7 +114,7 @@ def read_lines_and_start_index(file_path, tag_start, tag_end):
     if index_end == -1:
         print(f'Error: end tag "{tag_end}" not found')
         return None, None
-    return lines, index_start
+    return lines, index_start, index_end
 
 
 def insert_components_between_tags(lines, index_start, app_name, dist_dir):
@@ -435,9 +435,15 @@ def gen_conn_type(args):
 
 def gen_content_between_tags(filename, tag_start, tag_end, func):
     target_file = Path(sys.argv[0]).parent.joinpath(filename)
-    lines, index_start = read_lines_and_start_index(target_file, tag_start, tag_end)
+    lines, index_start, index_end = read_lines_and_start_index(
+        target_file, tag_start, tag_end
+    )
     if lines is None:
         return False
+
+    # Regenerate these sections from scratch on every run to avoid
+    # accumulating duplicate WiX symbols across repeated preprocess calls.
+    del lines[index_start + 1:index_end]
 
     func(lines, index_start)
 
