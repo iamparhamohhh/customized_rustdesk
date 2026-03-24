@@ -28,6 +28,13 @@ import '../../common/widgets/autocomplete.dart';
 import '../../models/platform_model.dart';
 import '../../desktop/widgets/material_mod_popup_menu.dart' as mod_menu;
 
+class _SettingsShortcut {
+  final SettingsTabKey key;
+  final String label;
+  final IconData icon;
+  _SettingsShortcut(this.key, this.label, this.icon);
+}
+
 class OnlineStatusWidget extends StatefulWidget {
   const OnlineStatusWidget({Key? key, this.onSvcStatusChanged})
       : super(key: key);
@@ -316,23 +323,51 @@ class _ConnectionPageState extends State<ConnectionPage>
         Expanded(
             child: Column(
           children: [
-            ChangeNotifierProvider.value(
-              value: gFFI.serverModel,
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: _buildRemoteIDTextField(context)),
-                    if (!isOutgoingOnly) ...[
-                      const SizedBox(width: 12),
-                      Expanded(child: _buildIDCard(context)),
-                      const SizedBox(width: 12),
-                      Expanded(child: _buildPasswordCard(context)),
-                    ],
-                  ],
-                ).paddingOnly(right: 12),
-              ),
-            ).marginOnly(top: 22),
+            _buildSettingsBar(context),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 700;
+                return ChangeNotifierProvider.value(
+                  value: gFFI.serverModel,
+                  child: isWide
+                      ? IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(child: _buildRemoteIDTextField(context)),
+                              if (!isOutgoingOnly) ...[
+                                const SizedBox(width: 12),
+                                Expanded(child: _buildIDCard(context)),
+                                const SizedBox(width: 12),
+                                Expanded(child: _buildPasswordCard(context)),
+                              ],
+                            ],
+                          ).paddingOnly(right: 12),
+                        )
+                      : Column(
+                          children: [
+                            _buildRemoteIDTextField(context)
+                                .paddingOnly(right: 12),
+                            if (!isOutgoingOnly) ...[
+                              const SizedBox(height: 12),
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(child: _buildIDCard(context)),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                        child: _buildPasswordCard(context)),
+                                  ],
+                                ),
+                              ).paddingOnly(right: 12),
+                            ],
+                          ],
+                        ),
+                );
+              },
+            ).marginOnly(top: 8),
             SizedBox(height: 12),
             Divider().paddingOnly(right: 12),
             Expanded(child: PeerTabPage()),
@@ -341,6 +376,88 @@ class _ConnectionPageState extends State<ConnectionPage>
         if (!isOutgoingOnly) const Divider(height: 1),
         if (!isOutgoingOnly) OnlineStatusWidget()
       ],
+    );
+  }
+
+  Widget _buildSettingsBar(BuildContext context) {
+    final tabs = <_SettingsShortcut>[];
+    for (final key in DesktopSettingPage.tabKeys) {
+      switch (key) {
+        case SettingsTabKey.general:
+          tabs.add(_SettingsShortcut(key, 'General', Icons.settings));
+          break;
+        case SettingsTabKey.safety:
+          tabs.add(
+              _SettingsShortcut(key, 'Security', Icons.enhanced_encryption));
+          break;
+        case SettingsTabKey.network:
+          tabs.add(_SettingsShortcut(key, 'Network', Icons.link));
+          break;
+        case SettingsTabKey.display:
+          tabs.add(_SettingsShortcut(key, 'Display', Icons.desktop_windows));
+          break;
+        case SettingsTabKey.plugin:
+          tabs.add(_SettingsShortcut(key, 'Plugin', Icons.extension));
+          break;
+        case SettingsTabKey.account:
+          tabs.add(_SettingsShortcut(key, 'Account', Icons.person));
+          break;
+        case SettingsTabKey.printer:
+          tabs.add(_SettingsShortcut(key, 'Printer', Icons.print));
+          break;
+        case SettingsTabKey.about:
+          tabs.add(_SettingsShortcut(key, 'About', Icons.info));
+          break;
+      }
+    }
+    return Container(
+      margin: const EdgeInsets.only(top: 10, right: 12),
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: tabs.map((t) => _buildSettingsBarItem(context, t)).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsBarItem(BuildContext context, _SettingsShortcut item) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () {
+        DesktopTabPage.onAddSetting(initialPage: item.key);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              item.icon,
+              size: 28,
+              color: MyTheme.accent,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              translate(item.label),
+              style: TextStyle(
+                fontSize: 11,
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.color
+                    ?.withOpacity(0.8),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -363,8 +480,8 @@ class _ConnectionPageState extends State<ConnectionPage>
     final model = gFFI.serverModel;
     final textColor = Theme.of(context).textTheme.titleLarge?.color;
     return Container(
-      constraints: const BoxConstraints(minHeight: 160),
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
+      constraints: const BoxConstraints(minHeight: 120),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -397,7 +514,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                   Text(
                     translate("ID"),
                     style: TextStyle(
-                      fontSize: 19,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: textColor,
                     ),
@@ -418,11 +535,11 @@ class _ConnectionPageState extends State<ConnectionPage>
               decoration: const InputDecoration(
                 filled: false,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               style: TextStyle(
-                fontSize: 22,
-                height: 1.4,
+                fontSize: 18,
+                height: 1.2,
                 fontWeight: FontWeight.bold,
                 color: textColor,
                 letterSpacing: 1.5,
@@ -452,8 +569,8 @@ class _ConnectionPageState extends State<ConnectionPage>
     final showOneTime = model.approveMode != 'click' &&
         model.verificationMethod != kUsePermanentPassword;
     return Container(
-      constraints: const BoxConstraints(minHeight: 160),
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
+      constraints: const BoxConstraints(minHeight: 120),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -484,7 +601,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                 child: AutoSizeText(
                   translate("One-time Password"),
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: textColor,
                   ),
@@ -510,11 +627,11 @@ class _ConnectionPageState extends State<ConnectionPage>
                     decoration: const InputDecoration(
                       filled: false,
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     style: TextStyle(
-                      fontSize: 22,
-                      height: 1.4,
+                      fontSize: 18,
+                      height: 1.2,
                       fontWeight: FontWeight.w500,
                       color: textColor,
                     ),
@@ -591,7 +708,7 @@ class _ConnectionPageState extends State<ConnectionPage>
   Widget _buildRemoteIDTextField(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     var w = Container(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           color: Theme.of(context).cardColor,
@@ -609,7 +726,7 @@ class _ConnectionPageState extends State<ConnectionPage>
       child: Ink(
         child: Column(
           children: [
-            getConnectionPageTitle(context, false).marginOnly(bottom: 15),
+            getConnectionPageTitle(context, false).marginOnly(bottom: 8),
             Row(
               children: [
                 Expanded(
@@ -678,8 +795,8 @@ class _ConnectionPageState extends State<ConnectionPage>
                           style: const TextStyle(
                             fontFamily: 'WorkSans',
                             fontFamilyFallback: ['Vazirmatn'],
-                            fontSize: 22,
-                            height: 1.4,
+                            fontSize: 18,
+                            height: 1.2,
                           ),
                           maxLines: 1,
                           cursorColor:
@@ -691,7 +808,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                                   ? null
                                   : translate('Enter Remote ID'),
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 13)),
+                                  horizontal: 12, vertical: 8)),
                           controller: fieldTextEditingController,
                           inputFormatters: [IDTextInputFormatter()],
                           onChanged: (v) {
