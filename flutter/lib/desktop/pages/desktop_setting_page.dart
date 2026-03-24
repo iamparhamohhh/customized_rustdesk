@@ -2422,6 +2422,22 @@ class _AboutState extends State<_About> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () {
+                        launchUrlString('https://rahbarhesab.com');
+                      },
+                      child: Text(
+                        'rahbarhesab.com',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Text(
                       '© ${DateTime.now().toString().substring(0, 4)} Rahbar Team. All rights reserved.\n$license',
                       style: const TextStyle(color: Colors.white),

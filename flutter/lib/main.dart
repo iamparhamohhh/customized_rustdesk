@@ -32,6 +32,23 @@ import 'models/platform_model.dart';
 import 'package:flutter_hbb/plugin/handlers.dart'
     if (dart.library.html) 'package:flutter_hbb/web/plugin/handlers.dart';
 
+/// Resolve the current app language setting to a [Locale].
+/// Falls back to system locale when set to default ('').
+Locale? _currentLocale() {
+  try {
+    final lang = bind.mainGetLocalOption(key: kCommConfKeyLang);
+    if (lang.isNotEmpty) {
+      // Handle codes like 'zh_CN', 'zh_TW', etc.
+      final parts = lang.split(RegExp(r'[_-]'));
+      if (parts.length >= 2) {
+        return Locale(parts[0], parts[1]);
+      }
+      return Locale(parts[0]);
+    }
+  } catch (_) {}
+  return null; // use system default
+}
+
 /// Basic window and launch properties.
 int? kWindowId;
 WindowType? kWindowType;
@@ -368,6 +385,7 @@ void _runApp(
       theme: MyTheme.lightTheme,
       darkTheme: MyTheme.darkTheme,
       themeMode: themeMode,
+      locale: _currentLocale(),
       home: home,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -505,6 +523,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           theme: MyTheme.lightTheme,
           darkTheme: MyTheme.darkTheme,
           themeMode: MyTheme.currentThemeMode(),
+          locale: _currentLocale(),
           home: isDesktop
               ? const DesktopTabPage()
               : isWeb
