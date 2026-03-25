@@ -3707,27 +3707,72 @@ Widget loadPowered(BuildContext context) {
 }
 
 Widget loadLogo() {
-  return FutureBuilder<ByteData>(
-      future: rootBundle.load('assets/logo.png'),
-      builder: (BuildContext context, AsyncSnapshot<ByteData> snapshot) {
-        if (snapshot.hasData) {
-          final image = Image.asset(
-            'assets/logo.png',
-            fit: BoxFit.contain,
-            errorBuilder: (ctx, error, stackTrace) {
-              return Container();
-            },
-          );
-          return Container(
-            constraints: BoxConstraints(maxWidth: 300, maxHeight: 100),
-            child: image,
-          ).marginOnly(left: 16, right: 16, top: 16);
-        }
-        return const Offstage();
-      });
+  final runtimeLogoUrl =
+      bind.mainGetOptionSync(key: kOptionCustomLogoUrl).trim();
+  final builtInLogoUrl =
+      bind.mainGetBuildinOption(key: kOptionCustomLogoUrl).trim();
+  final logoUrl = runtimeLogoUrl.isNotEmpty ? runtimeLogoUrl : builtInLogoUrl;
+
+  final image = logoUrl.isNotEmpty
+      ? Image.network(
+          logoUrl,
+          fit: BoxFit.contain,
+          errorBuilder: (ctx, error, stackTrace) {
+            return Image.asset(
+              'assets/logo.png',
+              fit: BoxFit.contain,
+              errorBuilder: (ctx, error, stackTrace) => Container(),
+            );
+          },
+        )
+      : Image.asset(
+          'assets/logo.png',
+          fit: BoxFit.contain,
+          errorBuilder: (ctx, error, stackTrace) => Container(),
+        );
+
+  return Container(
+    constraints: BoxConstraints(maxWidth: 300, maxHeight: 100),
+    child: image,
+  ).marginOnly(left: 16, right: 16, top: 16);
 }
 
 Widget loadIcon(double size) {
+  final runtimeAppLogoUrl =
+      bind.mainGetOptionSync(key: kOptionCustomAppLogoUrl).trim();
+  final builtInAppLogoUrl =
+      bind.mainGetBuildinOption(key: kOptionCustomAppLogoUrl).trim();
+  final appLogoUrl =
+      runtimeAppLogoUrl.isNotEmpty ? runtimeAppLogoUrl : builtInAppLogoUrl;
+
+  final runtimeFallbackLogoUrl =
+      bind.mainGetOptionSync(key: kOptionCustomLogoUrl).trim();
+  final builtInFallbackLogoUrl =
+      bind.mainGetBuildinOption(key: kOptionCustomLogoUrl).trim();
+  final fallbackLogoUrl = runtimeFallbackLogoUrl.isNotEmpty
+      ? runtimeFallbackLogoUrl
+      : builtInFallbackLogoUrl;
+
+  final iconUrl = appLogoUrl.isNotEmpty ? appLogoUrl : fallbackLogoUrl;
+
+  if (iconUrl.isNotEmpty) {
+    return Image.network(
+      iconUrl,
+      width: size,
+      height: size,
+      errorBuilder: (ctx, error, stackTrace) => Image.asset(
+        'assets/icon.png',
+        width: size,
+        height: size,
+        errorBuilder: (ctx, error, stackTrace) => SvgPicture.asset(
+          'assets/icon.svg',
+          width: size,
+          height: size,
+        ),
+      ),
+    );
+  }
+
   return Image.asset('assets/icon.png',
       width: size,
       height: size,

@@ -23,13 +23,20 @@ Run the **"Build Windows (Flutter) - Manual"** workflow from the GitHub Actions 
 
 A banner image is shown below the install/update card on the home screen left pane.
 
-1. Place your banner image at `flutter/assets/banner.png` (PNG format, any resolution — it will scale to fit)
-2. Add it to the assets list in `flutter/pubspec.yaml` if not already present:
-   ```yaml
-   assets:
-     - assets/banner.png
-   ```
-3. Rebuild. If the file is absent the banner area is silently hidden.
+No app rebuild is required for future banner changes.
+
+The app now supports URL-based branding with automatic fallback to assets.
+
+- Option key: `custom-banner-url`
+- Runtime behavior:
+  - If `custom-banner-url` is set, the app loads banner from that URL.
+  - If empty or unreachable, it falls back to `flutter/assets/banner.png`.
+
+Recommended workflow:
+
+1. Set a stable URL once (example: `https://cdn.example.com/branding/banner.png`).
+2. Later, when the client wants a new banner, replace the image file at the same URL.
+3. No rebuild and no app update are needed.
 
 ### App Icon (Windows + Android)
 
@@ -52,7 +59,62 @@ Icon targets:
 
 ### Logo (Top-left of home screen)
 
-Replace `flutter/assets/icon.png` with your own image. The displayed size is controlled in `flutter/lib/desktop/pages/desktop_home_page.dart` → `_buildBrandHeader()` → `loadIcon(66)` (66 px).
+No app rebuild is required for in-app logo changes.
+
+Supported option keys:
+
+- `custom-app-logo-url` (top-left home logo/icon)
+- `custom-logo-url` (generic in-app logo fallback)
+
+Runtime behavior:
+
+- Home top-left logo priority:
+  1. `custom-app-logo-url`
+  2. `custom-logo-url`
+  3. `flutter/assets/icon.png`
+  4. `flutter/assets/icon.svg`
+- Settings/main logo area:
+  1. `custom-logo-url`
+  2. `flutter/assets/logo.png`
+
+Recommended workflow:
+
+1. Set stable URLs once.
+2. Replace the files at those URLs whenever branding changes.
+3. No rebuild and no app update are needed for those in-app images.
+
+If branding URL is not known yet today, keep these options empty for now. Later, set the URL and the app will start using it immediately (with asset fallback if the URL is unavailable).
+
+### Where to change URL values in code
+
+If you want to hardcode default URLs in source code (instead of setting runtime options), update these places:
+
+1. Option key names are declared in:
+  - `flutter/lib/consts.dart`
+  - `kOptionCustomBannerUrl`
+  - `kOptionCustomLogoUrl`
+  - `kOptionCustomAppLogoUrl`
+
+2. Banner URL read logic is in:
+  - `flutter/lib/common/widgets/app_banner.dart`
+  - Variable: `bannerUrl`
+
+3. Settings/main logo URL read logic is in:
+  - `flutter/lib/common.dart`
+  - Function: `loadLogo()`
+  - Variable: `logoUrl`
+
+4. Home top-left logo URL read logic is in:
+  - `flutter/lib/common.dart`
+  - Function: `loadIcon(double size)`
+  - Variable: `iconUrl`
+
+Notes:
+
+- Runtime options are read first using `bind.mainGetOptionSync(...)`.
+- Built-in defaults are read second using `bind.mainGetBuildinOption(...)`.
+- If you hardcode URLs directly in these functions, a rebuild is required for future changes.
+- For no-rebuild image updates, keep URL values in runtime options and only replace files on your server/CDN.
 
 ### Brand Colors / Theme
 
@@ -71,17 +133,8 @@ The app uses **Vazirmatn** globally (Regular / Medium / Bold). Font files live i
 
 ---
 
-## Local Development Build
 
-```powershell
-cd e:\customized_rustdesk\flutter
-flutter build windows --release
-# Output: build\windows\x64\runner\Release\rahbardesk.exe
-```
 
-> **Note:** Local builds use your installed Flutter version (3.38.9 / Dart 3.10.8). CI uses a pinned custom Flutter engine (3.24.5) — do not add pub dependencies that require Dart ≥ 3.7.0, as they will break CI.
-
----
 
 ## Original RustDesk Documentation
 
