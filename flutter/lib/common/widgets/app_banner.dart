@@ -9,12 +9,10 @@ class AppBanner extends StatelessWidget {
   static const String _defaultBannerUrl =
       'https://rahbarhesab.com/rahbardesk.jpeg';
 
-  final double maxHeight;
   final EdgeInsetsGeometry margin;
 
   const AppBanner({
     Key? key,
-    this.maxHeight = 120,
     this.margin = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
   }) : super(key: key);
 
@@ -32,24 +30,24 @@ class AppBanner extends StatelessWidget {
 
     return Container(
       margin: margin,
-      constraints: BoxConstraints(maxHeight: maxHeight),
+      width: double.infinity,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: bannerUrl.isNotEmpty
             ? Image.network(
                 bannerUrl,
-                fit: BoxFit.contain,
+                fit: BoxFit.fitWidth,
                 width: double.infinity,
                 errorBuilder: (_, __, ___) => Image.asset(
                   'assets/banner.png',
-                  fit: BoxFit.contain,
+                  fit: BoxFit.fitWidth,
                   width: double.infinity,
                   errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               )
             : Image.asset(
                 'assets/banner.png',
-                fit: BoxFit.contain,
+                fit: BoxFit.fitWidth,
                 width: double.infinity,
                 errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
