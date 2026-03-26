@@ -330,37 +330,31 @@ class _ConnectionPageState extends State<ConnectionPage>
                 return ChangeNotifierProvider.value(
                   value: gFFI.serverModel,
                   child: isWide
-                      ? IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(child: _buildRemoteIDTextField(context)),
-                              if (!isOutgoingOnly) ...[
-                                const SizedBox(width: 12),
-                                Expanded(child: _buildIDCard(context)),
-                                const SizedBox(width: 12),
-                                Expanded(child: _buildPasswordCard(context)),
-                              ],
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildRemoteIDTextField(context)),
+                            if (!isOutgoingOnly) ...[
+                              const SizedBox(width: 12),
+                              Expanded(child: _buildIDCard(context)),
+                              const SizedBox(width: 12),
+                              Expanded(child: _buildPasswordCard(context)),
                             ],
-                          ).paddingOnly(right: 12),
-                        )
+                          ],
+                        ).paddingOnly(right: 12)
                       : Column(
                           children: [
                             _buildRemoteIDTextField(context)
                                 .paddingOnly(right: 12),
                             if (!isOutgoingOnly) ...[
                               const SizedBox(height: 12),
-                              IntrinsicHeight(
-                                child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Expanded(child: _buildIDCard(context)),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                        child: _buildPasswordCard(context)),
-                                  ],
-                                ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(child: _buildIDCard(context)),
+                                  const SizedBox(width: 12),
+                                  Expanded(child: _buildPasswordCard(context)),
+                                ],
                               ).paddingOnly(right: 12),
                             ],
                           ],

@@ -6,6 +6,9 @@ import 'package:flutter_hbb/models/platform_model.dart';
 /// A configurable banner widget that loads an image from a remote URL
 /// when available, otherwise falls back to `assets/banner.png`.
 class AppBanner extends StatelessWidget {
+  static const String _defaultBannerUrl =
+      'https://rahbarhesab.com/rahbardesk.jpeg';
+
   final double maxHeight;
   final EdgeInsetsGeometry margin;
 
@@ -21,8 +24,11 @@ class AppBanner extends StatelessWidget {
         bind.mainGetOptionSync(key: kOptionCustomBannerUrl).trim();
     final builtInBannerUrl =
         bind.mainGetBuildinOption(key: kOptionCustomBannerUrl).trim();
-    final bannerUrl =
+    final configuredBannerUrl =
         runtimeBannerUrl.isNotEmpty ? runtimeBannerUrl : builtInBannerUrl;
+    final bannerUrl = configuredBannerUrl.isNotEmpty
+        ? configuredBannerUrl
+        : _defaultBannerUrl;
 
     return Container(
       margin: margin,
